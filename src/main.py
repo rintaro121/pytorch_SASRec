@@ -26,7 +26,7 @@ class CFG:
     seed = 42
     num_workers = os.cpu_count()
 
-    num_epochs = 50
+    num_epochs = 25
     hidden_units = 64
     num_heads = 1
     num_layers = 2
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     train_dataloader = DataLoader(train_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=True)
     valid_dataloader = DataLoader(valid_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=False)
-    train_size = len(train_dataloader.dataset)
+
     model = SASRec(
         CFG.num_items,
         CFG.hidden_units,
