@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pytorch-sasrec"
+version = "0.1.0"
+description = ""
+authors = ["rintaro121 <hrintaro121@icloud.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "1.26.4"
+torch = "2.0.0"
+pandas = "^2.2.3"
+scikit-learn = "^1.5.2"
+black = "^24.10.0"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
+ipykernel = "^6.29.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
