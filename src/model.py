@@ -34,7 +34,7 @@ class SASRec(nn.Module):
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
 
         self.future_mask_const = torch.triu(
-            torch.ones(self.max_len, self.max_len) * float("-inf"), diagonal=1, device=self.device
+            torch.ones(self.max_len, self.max_len, device=self.device) * float("-inf"), diagonal=1
         )
         self.seq_diag_const = ~diag(torch.ones(self.max_len, dtype=torch.bool, device=self.device))
 
