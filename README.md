@@ -3,6 +3,8 @@ SASRec implemented in pytorch and trained with Movielens-1m
 
 Original Paper:[Self-Attentive Sequential Recommendation](https://arxiv.org/abs/1808.09781)
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-XnXorboTtAPligLu8G_FhiGVKZeB88Y?usp=sharing)
+
 ### Download Movielens-1m
 ```
 1. chmod 755 download.sh 
