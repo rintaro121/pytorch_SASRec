@@ -2,14 +2,13 @@ import math
 import os
 import random
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from sklearn import model_selection, preprocessing
-
-# from torch import concat, diag, logical_and, logical_or, nn, tensor, tile
 from torch.utils.data import DataLoader
 
 from dataset import MovielensDataset
@@ -27,12 +26,12 @@ class CFG:
     seed = 42
     num_workers = os.cpu_count()
 
-    num_epochs = 200
-    hidden_units = 50
+    num_epochs = 50
+    hidden_units = 64
     num_heads = 1
-    num_layers = 4
+    num_layers = 2
     dropout_rate = 0.2
-    lr = 1e-3
+    lr = 5e-4
 
 
 if __name__ == "__main__":
@@ -68,7 +67,7 @@ if __name__ == "__main__":
 
     train_dataloader = DataLoader(train_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=True)
     valid_dataloader = DataLoader(valid_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=False)
-
+    train_size = len(train_dataloader.dataset)
     model = SASRec(
         CFG.num_items,
         CFG.hidden_units,
@@ -81,9 +80,12 @@ if __name__ == "__main__":
     model = model.to(CFG.device)
 
     bce_loss = torch.nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=CFG.lr)
 
     valid_users = len(valid_dataset)
+
+    train_loss_log = []
+    valid_loss_log = []
 
     for epoch in range(CFG.num_epochs):
         running_loss = 0.0
@@ -112,6 +114,7 @@ if __name__ == "__main__":
             optimizer.step()
             running_loss += loss.item()
 
+        train_loss_log.append(running_loss / len(train_dataloader))
         print(f"Train [{epoch+1} / {CFG.num_epochs}] Loss : {running_loss}")
 
         with torch.no_grad():
@@ -154,6 +157,20 @@ if __name__ == "__main__":
                     if 0 in top_indices[i]:
                         HR += 1
 
+        valid_loss_log.append(running_loss / len(valid_dataloader))
         print(f"Valid [{epoch+1} / {CFG.num_epochs}] Loss : {running_loss}")
         print(f"HitCount:{HR}.  HitRate@10:{HR/valid_users}.")
         print()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(train_loss_log, label="train")
+    plt.plot(valid_loss_log, label="valid")
+
+    plt.xticks(range(len(train_loss_log)))
+
+    plt.xlabel("epoch")
+    plt.ylabel("BCE loss")
+
+    plt.legend()
+    plt.savefig("loss.png")
+    plt.show()
