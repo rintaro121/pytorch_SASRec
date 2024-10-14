@@ -118,7 +118,23 @@ if __name__ == "__main__":
             running_loss = 0.0
             for i, batch in enumerate(valid_dataloader):
 
-                inputs, eval_item_ids = batch
+                inputs, pos_ids, neg_ids, eval_item_ids = batch
+
+                pos_logits, neg_logits = model(inputs, pos_ids, neg_ids)
+                pos_labels, neg_labels = torch.ones(pos_logits.shape), torch.zeros(neg_logits.shape)
+
+                indices = np.where(pos_ids != 0)
+
+                pos_logits = pos_logits.to(CFG.device)
+                neg_logits = neg_logits.to(CFG.device)
+                pos_labels = pos_labels.to(CFG.device)
+                neg_labels = neg_labels.to(CFG.device)
+
+                loss = bce_loss(pos_logits[indices], pos_labels[indices])
+                loss += bce_loss(neg_logits[indices], neg_labels[indices])
+
+                running_loss += loss.item()
+
                 eval_item_ids = eval_item_ids.to(CFG.device)
                 last_item_ids = pos_ids[:, -1]
 
