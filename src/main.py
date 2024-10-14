@@ -25,9 +25,10 @@ class CFG:
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_size = 0.2
     seed = 42
+    num_workers = os.cpu_count()
 
     num_epochs = 200
-    hidden_units = 32
+    hidden_units = 64
     num_heads = 1
     num_layers = 1
     dropout_rate = 0.2
@@ -65,8 +66,8 @@ if __name__ == "__main__":
     train_dataset = MovielensDataset(train_df, CFG.max_len, CFG.num_items, train_flag=True)
     valid_dataset = MovielensDataset(valid_df, CFG.max_len, CFG.num_items, train_flag=False)
 
-    train_dataloader = DataLoader(train_dataset, batch_size=CFG.batch_size, shuffle=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=CFG.batch_size, shuffle=False)
+    train_dataloader = DataLoader(train_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=CFG.batch_size, num_workers=CFG.num_workers, shuffle=False)
 
     model = SASRec(
         CFG.num_items,
