@@ -1,5 +1,5 @@
 # pytorch_SASRec
-SASRec implemented in pytorch and trained with Movielens-1m
+SASRec implemented in pytorch and trained with Movielens-1m  
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-XnXorboTtAPligLu8G_FhiGVKZeB88Y?usp=sharing)
 
 Original Paper:[Self-Attentive Sequential Recommendation](https://arxiv.org/abs/1808.09781)
