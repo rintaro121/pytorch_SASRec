@@ -8,9 +8,9 @@ from torch import concat, diag, logical_and, logical_or, tile
 #     return causal_mask
 
 
-def create_padding_mask(input_ids, device):
-    padding_mask = (input_ids == 0).unsqueeze(1).unsqueeze(2)
-    return padding_mask.to(device)
+# def create_padding_mask(input_ids, device):
+#     padding_mask = (input_ids == 0)
+#     return padding_mask.to(device)
 
 
 class SASRec(nn.Module):
@@ -77,7 +77,7 @@ class SASRec(nn.Module):
         return causal_mask
 
     def create_padding_mask(self, input_ids, device):
-        padding_mask = (input_ids == 0).unsqueeze(1).unsqueeze(2)
+        padding_mask = input_ids == 0
         return padding_mask.to(device)
 
     def merge_attn_masks(self, padding_mask):
