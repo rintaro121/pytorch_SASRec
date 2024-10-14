@@ -75,7 +75,7 @@ if __name__ == "__main__":
         CFG.num_heads,
         CFG.num_layers,
         CFG.dropout_rate,
-        # CFG.device,
+        CFG.device,
     )
     model = model.to(CFG.device)
 
@@ -88,8 +88,6 @@ if __name__ == "__main__":
         running_loss = 0.0
         for i, batch in enumerate(train_dataloader):
             inputs, pos_ids, neg_ids = batch
-
-            inputs, pos_ids, neg_ids = inputs.to(CFG.device), pos_ids.to(CFG.device), neg_ids.to(CFG.device)
 
             pos_logits, neg_logits = model(inputs, pos_ids, neg_ids)
             pos_labels, neg_labels = torch.ones(pos_logits.shape), torch.zeros(neg_logits.shape)
