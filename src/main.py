@@ -28,9 +28,9 @@ class CFG:
     num_workers = os.cpu_count()
 
     num_epochs = 200
-    hidden_units = 64
+    hidden_units = 50
     num_heads = 1
-    num_layers = 2
+    num_layers = 4
     dropout_rate = 0.2
     lr = 1e-3
 
