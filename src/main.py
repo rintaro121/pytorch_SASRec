@@ -8,7 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from sklearn import model_selection, preprocessing
-from torch import concat, diag, logical_and, logical_or, nn, tensor, tile
+
+# from torch import concat, diag, logical_and, logical_or, nn, tensor, tile
 from torch.utils.data import DataLoader
 
 from dataset import MovielensDataset
@@ -88,52 +89,54 @@ if __name__ == "__main__":
         for i, batch in enumerate(train_dataloader):
             inputs, pos_ids, neg_ids = batch
 
-        pos_logits, neg_logits = model(inputs, pos_ids, neg_ids)
-        pos_labels, neg_labels = torch.ones(pos_logits.shape), torch.zeros(neg_logits.shape)
+            inputs, pos_ids, neg_ids = inputs.to(CFG.device), pos_ids.to(CFG.device), neg_ids.to(CFG.device)
 
-        # pos_id = pos_ids.to('cpu').detach().numpy().copy()
-        # print(pos_ids)
-        indices = np.where(pos_ids != 0)
-        # indices = torch.from_numpy(indices).to(device)
-        pos_logits = pos_logits.to(CFG.device)
-        neg_logits = neg_logits.to(CFG.device)
-        pos_labels = pos_labels.to(CFG.device)
-        neg_labels = neg_labels.to(CFG.device)
+            pos_logits, neg_logits = model(inputs, pos_ids, neg_ids)
+            pos_labels, neg_labels = torch.ones(pos_logits.shape), torch.zeros(neg_logits.shape)
 
-        optimizer.zero_grad()
+            # pos_id = pos_ids.to('cpu').detach().numpy().copy()
+            # print(pos_ids)
+            indices = np.where(pos_ids != 0)
+            # indices = torch.from_numpy(indices).to(device)
+            pos_logits = pos_logits.to(CFG.device)
+            neg_logits = neg_logits.to(CFG.device)
+            pos_labels = pos_labels.to(CFG.device)
+            neg_labels = neg_labels.to(CFG.device)
 
-        loss = bce_loss(pos_logits[indices], pos_labels[indices])
-        loss += bce_loss(neg_logits[indices], neg_labels[indices])
-        # for param in model.parameters():
-        #     loss += 0.00005 * torch.norm(param)
-        loss.backward()
-        optimizer.step()
-        running_loss += loss.item()
+            optimizer.zero_grad()
 
-    print(f"Train [{epoch+1} / {CFG.num_epochs}] Loss : {running_loss}")
+            loss = bce_loss(pos_logits[indices], pos_labels[indices])
+            loss += bce_loss(neg_logits[indices], neg_labels[indices])
+            # for param in model.parameters():
+            #     loss += 0.00005 * torch.norm(param)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
 
-    hit_count = 0
-    for i, batch in enumerate(valid_dataloader):
-        # print(batch)
-        inputs, eval_item_ids = batch
-        eval_item_ids = eval_item_ids.to(CFG.device)
-        last_item_ids = pos_ids[:, -1]
+        print(f"Train [{epoch+1} / {CFG.num_epochs}] Loss : {running_loss}")
 
-        output = model.predict(inputs)
-        output = output[:, -1, :]
+        hit_count = 0
+        for i, batch in enumerate(valid_dataloader):
+            # print(batch)
+            inputs, eval_item_ids = batch
+            eval_item_ids = eval_item_ids.to(CFG.device)
+            last_item_ids = pos_ids[:, -1]
 
-        eval_item_embs = model.item_emb(eval_item_ids)
+            output = model.predict(inputs)
+            output = output[:, -1, :]
 
-        pred = eval_item_embs.matmul(output.unsqueeze(-1)).squeeze(-1)
+            eval_item_embs = model.item_emb(eval_item_ids)
 
-        # pred = output.unsqueeze(-1) @ eval_item_embs.transpose(1, 0)
+            pred = eval_item_embs.matmul(output.unsqueeze(-1)).squeeze(-1)
 
-        prob = F.softmax(pred, dim=-1)
-        top_probabilities, top_indices = torch.topk(prob, k=10)
-        HR = 0
-        for i in range(inputs.size(0)):
-            if 0 in top_indices[i]:
-                HR += 1
+            # pred = output.unsqueeze(-1) @ eval_item_embs.transpose(1, 0)
 
-    print(f"Valid [{epoch+1} / {CFG.num_epochs}] HitCount:{HR}.  HitRate@10:{HR/valid_users}.")
-    print()
+            prob = F.softmax(pred, dim=-1)
+            top_probabilities, top_indices = torch.topk(prob, k=10)
+            HR = 0
+            for i in range(inputs.size(0)):
+                if 0 in top_indices[i]:
+                    HR += 1
+
+        print(f"Valid [{epoch+1} / {CFG.num_epochs}] HitCount:{HR}.  HitRate@10:{HR/valid_users}.")
+        print()
