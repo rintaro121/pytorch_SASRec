@@ -16,20 +16,11 @@ class MovielensDataset(Dataset):
 
         for i in range(len(df)):
             row = self.df.iloc[i]
-            # idxes = self.random_idxes(row.movie_count)
 
             movie_sequence = row.movie_list[:-1]
             input_ids, labels = self.padding_sequence(movie_sequence)
-            # input_ids = torch.Tensor(self.padding_sequence(movie_seq, self.max_length)).long()
-            # label = torch.Tensor(row.movie_list[:1])
 
-            self.seq_data.append(
-                {
-                    "orig_movie_sequence": movie_sequence,
-                    "input_ids": input_ids,
-                    "labels": labels,
-                }
-            )
+            self.seq_data.append({"orig_movie_sequence": movie_sequence, "input_ids": input_ids, "labels": labels})
 
     def __len__(self):
         return len(self.seq_data)
@@ -55,8 +46,6 @@ class MovielensDataset(Dataset):
             return torch.tensor(input_ids), torch.tensor(labels), torch.tensor(negatives), torch.tensor(eval_item_ids)
 
     def padding_sequence(self, orig_movie_sequence):
-        # negative_set = self.item_set - set(sequence)
-
         sequence = orig_movie_sequence[-(self.max_len + 1) :]
         inputs = sequence[:-1]
         labels = sequence[1:]
