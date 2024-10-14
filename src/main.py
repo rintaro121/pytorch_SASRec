@@ -104,8 +104,10 @@ if __name__ == "__main__":
 
             loss = bce_loss(pos_logits[indices], pos_labels[indices])
             loss += bce_loss(neg_logits[indices], neg_labels[indices])
-            # for param in model.parameters():
-            #     loss += 0.00005 * torch.norm(param)
+
+            for param in model.parameters():
+                loss += 0.00005 * torch.norm(param)
+
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
