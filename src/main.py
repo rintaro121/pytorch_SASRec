@@ -20,7 +20,7 @@ class CFG:
     base_dir = "./datasets/ml-1m"
     ratings_path = os.path.join(base_dir, "ratings.dat")
 
-    batch_size = 128
+    batch_size = 256
     max_len = 200
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_size = 0.2
@@ -93,8 +93,6 @@ if __name__ == "__main__":
             pos_logits, neg_logits = model(inputs, pos_ids, neg_ids)
             pos_labels, neg_labels = torch.ones(pos_logits.shape), torch.zeros(neg_logits.shape)
 
-            # pos_id = pos_ids.to('cpu').detach().numpy().copy()
-            # print(pos_ids)
             indices = np.where(pos_ids != 0)
             # indices = torch.from_numpy(indices).to(device)
             pos_logits = pos_logits.to(CFG.device)
@@ -116,7 +114,7 @@ if __name__ == "__main__":
 
         hit_count = 0
         for i, batch in enumerate(valid_dataloader):
-            # print(batch)
+
             inputs, eval_item_ids = batch
             eval_item_ids = eval_item_ids.to(CFG.device)
             last_item_ids = pos_ids[:, -1]
@@ -127,8 +125,6 @@ if __name__ == "__main__":
             eval_item_embs = model.item_emb(eval_item_ids)
 
             pred = eval_item_embs.matmul(output.unsqueeze(-1)).squeeze(-1)
-
-            # pred = output.unsqueeze(-1) @ eval_item_embs.transpose(1, 0)
 
             prob = F.softmax(pred, dim=-1)
             top_probabilities, top_indices = torch.topk(prob, k=10)

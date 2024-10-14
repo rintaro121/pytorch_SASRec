@@ -36,26 +36,23 @@ class MovielensDataset(Dataset):
 
     def __getitem__(self, idx):
         data = self.seq_data[idx]
+
+        orig_movie_sequence = data["orig_movie_sequence"]
+        input_ids = data["input_ids"]
+        labels = data["labels"]
+        negatives = self.negative_sampling(orig_movie_sequence, input_ids)
+
         if self.train_flag:
-
-            orig_movie_sequence = data["orig_movie_sequence"]
-            input_ids = data["input_ids"]
-            labels = data["labels"]
-            negatives = self.negative_sampling(orig_movie_sequence, input_ids)
-
             return torch.tensor(input_ids), torch.tensor(labels), torch.tensor(negatives)
         else:
-            orig_movie_sequence = data["orig_movie_sequence"]
-            input_ids = data["input_ids"]
-            labels = data["labels"]
-
             last_item_id = labels[-1]
             negative_set = self.item_set - set(orig_movie_sequence)
             negative_indices = random.sample(list(negative_set), 100)
 
+            # 101 items in total (1 positive item, 100 negative items)
             eval_item_ids = [last_item_id] + negative_indices
 
-            return torch.tensor(input_ids), torch.tensor(eval_item_ids)
+            return torch.tensor(input_ids), torch.tensor(labels), torch.tensor(negatives), torch.tensor(eval_item_ids)
 
     def padding_sequence(self, orig_movie_sequence):
         # negative_set = self.item_set - set(sequence)
